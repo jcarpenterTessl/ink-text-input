@@ -31,6 +31,11 @@ export type Props = {
 	readonly highlightPastedText?: boolean; // eslint-disable-line react/boolean-prop-naming
 
 	/**
+	 * Whether to highlight all text when input receives focus
+	 */
+	readonly highlightOnFocus?: boolean; // eslint-disable-line react/boolean-prop-naming
+
+	/**
 	 * Value to display in a text input.
 	 */
 	readonly value: string;
@@ -44,6 +49,41 @@ export type Props = {
 	 * Function to call when `Enter` is pressed, where first argument is a value of the input.
 	 */
 	readonly onSubmit?: (value: string) => void;
+
+	/**
+	 * Text color
+	 */
+	readonly color?: string;
+
+	/**
+	 * Background color
+	 */
+	readonly backgroundColor?: string;
+
+	/**
+	 * Dim the text
+	 */
+	readonly dimColor?: boolean;
+
+	/**
+	 * Make the text bold
+	 */
+	readonly bold?: boolean;
+
+	/**
+	 * Make the text italic
+	 */
+	readonly italic?: boolean;
+
+	/**
+	 * Underline the text
+	 */
+	readonly underline?: boolean;
+
+	/**
+	 * Strike through the text
+	 */
+	readonly strikethrough?: boolean;
 };
 
 function TextInput({
@@ -53,34 +93,50 @@ function TextInput({
 	mask,
 	highlightPastedText = false,
 	showCursor = true,
+	highlightOnFocus = false,
 	onChange,
 	onSubmit,
+	color,
+	backgroundColor,
+	dimColor,
+	bold,
+	italic,
+	underline,
+	strikethrough,
 }: Props) {
 	const [state, setState] = useState({
 		cursorOffset: (originalValue || '').length,
 		cursorWidth: 0,
+		isHighlighted: false,
 	});
 
-	const {cursorOffset, cursorWidth} = state;
+	const {cursorOffset, cursorWidth, isHighlighted} = state;
 
+	// Effect to handle focus changes and initial highlighting
 	useEffect(() => {
-		setState(previousState => {
-			if (!focus || !showCursor) {
-				return previousState;
-			}
+		if (focus && highlightOnFocus) {
+			setState(previousState => ({
+				...previousState,
+				isHighlighted: true,
+				cursorOffset: originalValue.length,
+			}));
+		} else if (!focus) {
+			setState(previousState => ({
+				...previousState,
+				isHighlighted: false,
+			}));
+		}
+	}, [focus, highlightOnFocus]);
 
-			const newValue = originalValue || '';
-
-			if (previousState.cursorOffset > newValue.length - 1) {
-				return {
-					cursorOffset: newValue.length,
-					cursorWidth: 0,
-				};
-			}
-
-			return previousState;
-		});
-	}, [originalValue, focus, showCursor]);
+	// Separate effect to handle cursor position when value changes
+	useEffect(() => {
+		if (cursorOffset > originalValue.length) {
+			setState(previousState => ({
+				...previousState,
+				cursorOffset: originalValue.length,
+			}));
+		}
+	}, [originalValue, cursorOffset]);
 
 	const cursorActualWidth = highlightPastedText ? cursorWidth : 0;
 
@@ -89,7 +145,7 @@ function TextInput({
 	let renderedPlaceholder = placeholder ? chalk.grey(placeholder) : undefined;
 
 	// Fake mouse cursor, because it's too inconvenient to deal with actual cursor and ansi escapes
-	if (showCursor && focus) {
+	if (showCursor && focus && !isHighlighted) {
 		renderedPlaceholder =
 			placeholder.length > 0
 				? chalk.inverse(placeholder[0]) + chalk.grey(placeholder.slice(1))
@@ -111,6 +167,10 @@ function TextInput({
 		if (value.length > 0 && cursorOffset === value.length) {
 			renderedValue += chalk.inverse(' ');
 		}
+	} else if (isHighlighted) {
+		// When text is highlighted, show all text as inverse
+		renderedValue = chalk.inverse(value);
+		renderedPlaceholder = placeholder ? chalk.inverse(placeholder) : undefined;
 	}
 
 	useInput(
@@ -136,14 +196,17 @@ function TextInput({
 			let nextCursorOffset = cursorOffset;
 			let nextValue = originalValue;
 			let nextCursorWidth = 0;
+			let nextIsHighlighted = isHighlighted;
 
 			if (key.leftArrow) {
 				if (showCursor) {
 					nextCursorOffset--;
+					nextIsHighlighted = false;
 				}
 			} else if (key.rightArrow) {
 				if (showCursor) {
 					nextCursorOffset++;
+					nextIsHighlighted = false;
 				}
 			} else if (key.backspace || key.delete) {
 				if (cursorOffset > 0) {
@@ -152,18 +215,26 @@ function TextInput({
 						originalValue.slice(cursorOffset, originalValue.length);
 
 					nextCursorOffset--;
+					nextIsHighlighted = false;
 				}
 			} else {
-				nextValue =
-					originalValue.slice(0, cursorOffset) +
-					input +
-					originalValue.slice(cursorOffset, originalValue.length);
+				// If text is highlighted, replace the entire value
+				if (isHighlighted) {
+					nextValue = input;
+					nextCursorOffset = input.length;
+				} else {
+					nextValue =
+						originalValue.slice(0, cursorOffset) +
+						input +
+						originalValue.slice(cursorOffset, originalValue.length);
 
-				nextCursorOffset += input.length;
+					nextCursorOffset += input.length;
+				}
 
 				if (input.length > 1) {
 					nextCursorWidth = input.length;
 				}
+				nextIsHighlighted = false;
 			}
 
 			if (cursorOffset < 0) {
@@ -177,6 +248,7 @@ function TextInput({
 			setState({
 				cursorOffset: nextCursorOffset,
 				cursorWidth: nextCursorWidth,
+				isHighlighted: nextIsHighlighted,
 			});
 
 			if (nextValue !== originalValue) {
@@ -187,7 +259,15 @@ function TextInput({
 	);
 
 	return (
-		<Text>
+		<Text
+			color={color}
+			backgroundColor={backgroundColor}
+			dimColor={dimColor}
+			bold={bold}
+			italic={italic}
+			underline={underline}
+			strikethrough={strikethrough}
+		>
 			{placeholder
 				? value.length > 0
 					? renderedValue
