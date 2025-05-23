@@ -1,6 +1,6 @@
-# ink-text-input ![test](https://github.com/vadimdemedes/ink-text-input/workflows/test/badge.svg)
+# ink-text-input
 
-> Text input component for [Ink](https://github.com/vadimdemedes/ink).
+> A fork of the [TextInput](https://github.com/vadimdemedes/ink-text-input) component for [Ink](https://github.com/vadimdemedes/ink) with additional features such as highlight-on-focus.
 
 ## Install
 
@@ -91,6 +91,60 @@ Function to call when value updates.
 Type: `Function`
 
 Function to call when `Enter` is pressed, where first argument is a value of the input.
+
+### highlightOnFocus
+
+Type: `boolean`\
+Default: `false`
+
+Whether to highlight all text when input receives focus.
+
+### color
+
+Type: `string`
+
+Text color.
+
+### backgroundColor
+
+Type: `string`
+
+Background color.
+
+### dimColor
+
+Type: `boolean`\
+Default: `false`
+
+Dim the text.
+
+### bold
+
+Type: `boolean`\
+Default: `false`
+
+Make the text bold.
+
+### italic
+
+Type: `boolean`\
+Default: `false`
+
+Make the text italic.
+
+### underline
+
+Type: `boolean`\
+Default: `false`
+
+Underline the text.
+
+### strikethrough
+
+Type: `boolean`\
+Default: `false`
+
+Strike through the text.
 
 ## Uncontrolled usage
 

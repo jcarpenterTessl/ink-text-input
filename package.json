@@ -1,14 +1,25 @@
 {
-	"name": "ink-text-input",
-	"version": "6.0.0",
-	"description": "Text input component for Ink",
+	"name": "@jcarpentertessl/ink-text-input",
+	"version": "1.0.0",
+	"description": "A modified version of ink-text-input for Ink apps",
 	"license": "MIT",
-	"repository": "vadimdemedes/ink-text-input",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jcarpenterTessl/ink-text-input.git"
+	},
+	"homepage": "https://github.com/jcarpenterTessl/ink-text-input#readme",
 	"author": {
 		"name": "Vadim Demedes",
 		"email": "vadimdemedes@hey.com",
 		"url": "https://github.com/vadimdemedes"
 	},
+	"contributors": [
+		{
+			"name": "Josh Carpenter",
+			"email": "josh@tessl.io",
+			"url": "https://github.com/jcarpenterTessl/ink-text-input"
+		}
+	],
 	"type": "module",
 	"exports": {
 		"types": "./build/index.d.ts",
